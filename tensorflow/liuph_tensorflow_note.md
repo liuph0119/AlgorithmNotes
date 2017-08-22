@@ -263,13 +263,13 @@ mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
 ```
 mnist数据集包括三部分：55000 training data (`mnist.train`), 10000 test data (`mnist.test`), 5000 validation data (`mnist.validation`).每个mnist数据样本包括一幅手写数字图像(28 pix × 28 pix)和标签(0-9)，例如`mnist.train.images`表示训练集的图像X，`mnist.test.lables`表示测试集的标签。  
 我们可以将图像表达为28×28的numpy array，并将其压平(`flatten`)为28×28=784的数值向量。事实上，计算机视觉中常采用flatten这种方式。因而，mnist.train.images为一个形状为[55000, 784]的张量。  
-![images](imgs/mnist-train-xs.png)
+![images](https://www.tensorflow.org/images/mnist-train-xs.png)
 一般来说，y值并非常规的0-9的标量，而是以"one hot vector"的形式存储，例如，3表示为[0,0,1,0,0,0,0,0,0,0]，即第i个位置为1，其他位置为0。因而，mnist.train.labels为一个形状为[55000, 10]的张量。  
-![labels](imgs/mnist-train-ys.png)
+![labels](https://www.tensorflow.org/images/mnist-train-ys.png)
 ## 2.2. SoftMax Regression
 SoftMax Regression 是一个通用简单的模型，它能为一个目标属于多个类别分配概率，其输出为一个0-1的list，并且这个list的和为1。一般来说，对于成熟的模型，一般会将最后一层设置为softmax层。  
 SoftMax Regression包括两步：first we add up the evidence of our input being in certain classes, and then we convert that evidence into probabilities. We do a weighted sum of the pixel intensities. The weight is negative if that pixel having a high intensity is evidence against the image being in that class, and positive if it is evidence in favor. 简单来说，softmax regression就是计算出各个位置的权重。例如下图，红色表示负权重，蓝色表示正权重。
-![softmax weights](imgs/softmax-weights.png)
+![softmax weights](https://www.tensorflow.org/images/softmax-weights.png)
 一般除了权重，我们也会加入增益(bias)。
 因此，给定一个X，其对于类别 i 的evidence表示为：
 ![](http://latex.codecogs.com/gif.latex?%5Cbg_white%20%5Ctext%7Bevidence%7D_i%20%3D%20%5Csum_j%20W_%7Bi%2C%7E%20j%7D%20x_j%20&plus;%20b_i)  
@@ -278,7 +278,7 @@ SoftMax Regression包括两步：first we add up the evidence of our input being
 `y = softmax(evidence)`  
 此处`softmax`充当激活函数（`Activation`）的角色，此处输出10类概率。事实上，它的形式为`softmax(x) = normalize(exp(x))`，或者 ![](http://latex.codecogs.com/gif.latex?%5Cbg_white%20%5Ctext%7Bsoftmax%7D%28x%29_i%20%3D%20%5Cfrac%7B%5Cexp%28x_i%29%7D%7B%5Csum_j%20%5Cexp%28x_j%29%7D)。更多关于`softmax`函数的介绍可在[Softmax](http://neuralnetworksanddeeplearning.com/chap3.html#softmax)查看。  
 因此，此处的softmax函数形式如下图：  
-![Softmax regression scalargraph](imgs/softmax-regression-scalargraph.png)
+![Softmax regression scalargraph](https://www.tensorflow.org/images/softmax-regression-scalargraph.png)
 或者可以表示为：![](http://latex.codecogs.com/gif.latex?%5Cbg_white%20y%20%3D%20%5Ctext%7Bsoftmax%7D%28Wx%20&plus;%20b%29)
 ## 2.3. Implemention using tf
 ```python
@@ -319,7 +319,7 @@ for _ in range(1000):
   curr_loss = sess.run(cross_entropy, {x: batch_xs, y_: batch_ys})
   print("iteration--%3d loss: %s"%(_, curr_loss))
 ```
-##2.4. Evaluating model
+## 2.4. Evaluating model
 模型的评估首先需要从概率分布中确定分类类别，`tf.argmax()`可以查找到张量中某个维度上的最大值的位置。例如，`tf.argmax(y,1)`和`tf.argmax(y_,1)`分别代表模型输出和真实的label。采用`tf.equal`对两者进行相等判别。  
 ```python
 correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
@@ -362,8 +362,8 @@ for _ in range(1000):
 
 print("accuracy = %s"%sess.run(accuracy, feed_dict={x: mnist.test.images, y_: mnist.test.labels}))
 ```
-#3. Build a Multilayer Convolutional Network
-##3.1. Weight Initializition
+# 3. Build a Multilayer Convolutional Network
+## 3.1. Weight Initializition
 初始化权重时，加入细微的噪声，避免0梯度。初始化增益时，因为采用纠正([ReLU](https://en.wikipedia.org/wiki/Rectifier_(neural_networks))，一般形式为![](https://wikimedia.org/api/rest_v1/media/math/render/svg/bb2c32931fad595832c8e66f2f73760ebcbc0096))神经元因此将其设置为比较小的正数，避免神经元坏死。因此，weights 和 biases 的初始化函数如下：
 ```python
 def weight_variable(shape):
@@ -374,7 +374,7 @@ def bias_variable(shape):
   initial = tf.constant(0.1, shape=shape)
   return tf.Variable(initial)
 ```
-##3.2. Convolution and Pooling
+## 3.2. Convolution and Pooling
 ```python
 def conv2d(x, W):
   return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
@@ -384,7 +384,7 @@ def max_pool_2x2(x):
                         strides=[1, 2, 2, 1], padding='SAME')
 ```
 卷积函数采用步长为1，填充为0，因此输入与输出形状相同。池化函数采用2×2的单元，因此最后输出的各维形状为输入的一半。
-##3.3. First Convolutional Layer
+## 3.3. First Convolutional Layer
 第一层卷积层包括卷积和池化。它将为每一个5×5的patch计算32个特征，因此它的 weight 张量的形状为[5, 5, 1, 32]，前两者为 patch 的 size ，第三个为输入通道的数目，最后一个为输出通道的数目。
 ```python
 W_conv1 = weight_variable([5, 5, 1, 32])
@@ -400,7 +400,7 @@ x_image = tf.reshape(x, [-1, 28, 28, 1])
 h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
 h_pool1 = max_pool_2x2(h_conv1)
 ```
-##3.4. Second Convolutional Layer
+## 3.4. Second Convolutional Layer
 为了实现深度神经网络，再第一层后同样连接一层卷积层。该层为每个5×5的 patch 计算64个特征。最后经过池化后，图像大小由 14×14 变为 7×7。
 ```python
 W_conv2 = weight_variable([5, 5, 1, 64])
@@ -409,7 +409,7 @@ b_conv2 = bias_variable([64])
 h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
 h_pool2 = max_pool_2x2(h_conv2)
 ```
-##3.5. Densely Connected Layer
+## 3.5. Densely Connected Layer
 图像大小已经变成了 7×7。再加入全连接层时，设置1024个神经元，并将图像压扁为一系列向量。乘以权重，加上增益，最后ReLU。
 ```python
 W_fc1 = weight_variable([7 * 7 * 64, 1024])
@@ -418,13 +418,13 @@ b_fc1 = bias_variable([1024])
 h_pool2_flat = tf.reshape(h_pool2, [-1, 7*7*64])
 h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
 ```
-##3.6. Dropout
+## 3.6. Dropout
 为了降低过拟合的概率，应用[dropout](https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf)，dropout过程根据概率来判断某个神经元的输出是否保留。
 ```python
 keep_prob = tf.placeholder(tf.float32)
 h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
 ```
-##3.7. Readout Layer
+## 3.7. Readout Layer
 形如softmax regression 层。
 ```python
 W_fc2 = weight_variable([1024, 10])
@@ -432,7 +432,7 @@ b_fc2 = bias_variable([10])
 y_ = tf.placeholder(tf.float32,[None, 10])
 y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
 ```
-##3.8. Training & Evaluating 
+## 3.8. Training & Evaluating 
 与softmax的训练和评估相似，但是本模型与前者存在以下一些不同之处：
 - 采用`ADAM Optimizer`代替`Gradient Descent Optimizer`
 - 将`keep_prob`和`feed_dict`加入，用于控制`dropout`比例
@@ -457,7 +457,7 @@ with tf.Session() as sess:
   print('test accuracy %g' % accuracy.eval(feed_dict={
       x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0}))
 ```
-##3.9. Complete Code
+## 3.9. Complete Code
 ```python
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
