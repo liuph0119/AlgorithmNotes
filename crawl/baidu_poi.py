@@ -96,5 +96,5 @@ class BDPOI:
 
 
 if __name__ == "__main__":
-    baidupoi = BDPOI(u"广州",u"大学","9iaa71M38LGBYE37Aiadn6Yi","test.csv")
+    baidupoi = BDPOI(u"广州",u"大学","your_api_key","test.csv")
     baidupoi.main()
